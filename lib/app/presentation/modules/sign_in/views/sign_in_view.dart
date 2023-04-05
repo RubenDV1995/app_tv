@@ -37,6 +37,7 @@ class _SingInViewState extends State<SingInView> {
           SignInFailure.notFound: 'Not found',
           SignInFailure.unauthorized: 'unauthorized',
           SignInFailure.unknown: 'unknown',
+          SignInFailure.network: 'Network error'
         }[failure];
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,12 +84,12 @@ class _SingInViewState extends State<SingInView> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     onChanged: (text) {
                       setState(() {
-                        _password = text.replaceAll(' ', '').toLowerCase();
+                        _password = text.replaceAll(' ', '');
                       });
                     },
                     decoration: const InputDecoration(hintText: 'password'),
                     validator: (text) {
-                      text = text?.replaceAll(' ', '').toLowerCase() ?? '';
+                      text = text?.replaceAll(' ', '') ?? '';
                       if (text.length < 4) {
                         return 'invalid Password';
                       }
