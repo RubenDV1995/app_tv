@@ -38,6 +38,11 @@ dependencies:
   connectivity_plus: ^3.0.3
   http: ^0.13.5
   flutter_secure_storage: ^8.0.0
+  provider: ^6.0.5
+  ux_design_system:
+    path: /Users/mac/StudioProjects/flutter/ux-design-system
+    #git:
+      #url: git@github.com:RubenDV1995/ux-design-system.git
 
 dev_dependencies:
   flutter_test:

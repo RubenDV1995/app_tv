@@ -13,7 +13,9 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   final AuthenticationService _authenticationService;
 
   AuthenticationRepositoryImpl(
-      this._flutterSecureStorage, this._authenticationService);
+    this._flutterSecureStorage,
+    this._authenticationService,
+  );
 
   @override
   Future<User?> getUserData() {
@@ -31,35 +33,38 @@ class AuthenticationRepositoryImpl extends AuthenticationRepository {
   @override
   Future<Either<SignInFailure, User>> signIn(
       String username, String password) async {
-    final requestToken = await _authenticationService.createRequestToken();
-    if (requestToken == null) {
-      return Either.left(SignInFailure.unknown);
-    }
-    final loginResult = await _authenticationService.createSessionWithLogin(
-      username: username,
-      password: password,
-      requestToken: requestToken,
-    );
-
-    return loginResult.when(
-      (failure) async {
-        return Either.left(failure);
-      },
-      (newRequestToken) async {
-        final sessionResult = await _authenticationService.createSession(
-          requestToken: newRequestToken,
+    final requestTokenResult =
+        await _authenticationService.createRequestToken();
+    return requestTokenResult.when(
+      (failure) => Either.left(failure),
+      (requestToken) async {
+        final loginResult = await _authenticationService.createSessionWithLogin(
+          username: username,
+          password: password,
+          requestToken: requestToken,
         );
-        return sessionResult.when(
+
+        return loginResult.when(
           (failure) async {
             return Either.left(failure);
           },
-          (sessionId) async {
-            await _flutterSecureStorage.write(
-              key: _key,
-              value: sessionId,
+          (newRequestToken) async {
+            final sessionResult = await _authenticationService.createSession(
+              requestToken: newRequestToken,
             );
-            return Either.right(
-              User(),
+            return sessionResult.when(
+              (failure) async {
+                return Either.left(failure);
+              },
+              (sessionId) async {
+                await _flutterSecureStorage.write(
+                  key: _key,
+                  value: sessionId,
+                );
+                return Either.right(
+                  User(),
+                );
+              },
             );
           },
         );

@@ -1,9 +1,10 @@
-import 'package:app_tv/app/my_app.dart';
+import 'app/my_app.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
+import 'app/data/http/http.dart';
 import 'app/data/repositories_implementation/authentication_repository_impl.dart';
 import 'app/data/repositories_implementation/connectivity_repository_impl.dart';
 import 'app/data/services/remote/authentication_service.dart';
@@ -11,15 +12,21 @@ import 'app/data/services/remote/internet_checker.dart';
 import 'app/domain/repositories/authentication_repository.dart';
 import 'app/domain/repositories/connectivity_repository.dart';
 
-void main() {
+void main() async {
   runApp(
     Injector(
-      connectivityRepository:
-          ConnectivityRepositoryImpl(Connectivity(), InternetChecker()),
+      connectivityRepository: ConnectivityRepositoryImpl(
+        Connectivity(),
+        InternetChecker(),
+      ),
       authenticationRepository: AuthenticationRepositoryImpl(
         const FlutterSecureStorage(),
         AuthenticationService(
-          http.Client(),
+          Http(
+            baseUrl: 'https://api.themoviedb.org/3',
+            apiKey: '6efa857898538e7f3070b0035db8d0a9',
+            client: http.Client(),
+          ),
         ),
       ),
       child: const MyApp(),
@@ -28,11 +35,12 @@ void main() {
 }
 
 class Injector extends InheritedWidget {
-  const Injector(
-      {super.key,
-      required super.child,
-      required this.connectivityRepository,
-      required this.authenticationRepository});
+  const Injector({
+    super.key,
+    required super.child,
+    required this.connectivityRepository,
+    required this.authenticationRepository,
+  });
 
   final ConnectivityRepository connectivityRepository;
   final AuthenticationRepository authenticationRepository;
